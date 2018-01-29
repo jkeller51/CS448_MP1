@@ -9,6 +9,18 @@ import os
 
 debug=1
 
+class Node:
+    beenthere=0
+    wall=0
+    previousNode=0;
+    
+    def __init__(self, cost, wall):
+        self.cost = cost
+        self.wall = wall
+        
+    
+    
+
 def loadmaze(filename):
     if not (os.path.exists(filename) and os.path.isfile(filename)):
         print("File not found!")
