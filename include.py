@@ -9,16 +9,14 @@ import os
 
 debug=1
 
-class Node:
+class Node(object):
     beenthere=0
     wall=0
-    previousNode=0;
+    previousNode=None;
     
     def __init__(self, cost, wall):
         self.cost = cost
         self.wall = wall
-        
-    
     
 
 def loadmaze(filename):
@@ -38,7 +36,8 @@ def loadmaze(filename):
         file.close()
     
         return maze
-    
+
+
 def find_start(maze):
     # find start position (P)
     q=0
@@ -59,6 +58,7 @@ def find_start(maze):
     
     return startpos
 
+
 def find_end(maze):
     # find goal position (.)
     q=0
@@ -66,7 +66,7 @@ def find_end(maze):
     while q<len(maze):
         i=0
         while i<len(maze[q]):       # search each character
-            if (maze[q][i] == "P"):   # if it is the starting character "."
+            if (maze[q][i] == "."):   # if it is the starting character "."
                 endpos = (q,i)     # update startpos
                 break
             i+=1
