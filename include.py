@@ -39,7 +39,7 @@ def loadmaze(filename):
     
         return maze
     
-def search(maze):
+def find_start(maze):
     # find start position (P)
     q=0
     startpos=(-1,-1)
@@ -56,3 +56,25 @@ def search(maze):
         
     if (debug==1):        
         print(startpos)
+    
+    return startpos
+
+def find_end(maze):
+    # find goal position (.)
+    q=0
+    endpos=(-1,-1)
+    while q<len(maze):
+        i=0
+        while i<len(maze[q]):       # search each character
+            if (maze[q][i] == "P"):   # if it is the starting character "."
+                endpos = (q,i)     # update startpos
+                break
+            i+=1
+        if (endpos != (-1, -1)):    # we're done here
+            break
+        q+=1
+        
+    if (debug==1):        
+        print(endpos)
+        
+    return endpos
