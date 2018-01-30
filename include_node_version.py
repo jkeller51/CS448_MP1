@@ -2,7 +2,7 @@
 """
 Created on Mon Jan 29 16:35:11 2018
 
-@author: jkell
+@author: jkell, HaokunLi1994
 """
 
 import os
@@ -178,5 +178,21 @@ def find_end(maze):
                 return endpos
 
 
-def traceback(endNode):
+def traceback(maze, endNode):
+    """ Mark the found path from 'P' to '.' with '*'
+
+    Args;
+        endNode(node): ending point of the maze
+    Returns:
+        (None)
+    """
+    current = endNode
+    previous = current.previousNode
+
+    while previous.value != "P":
+        previous.value = "*"
+        current = previous
+        previous = current.previousNode
+
+    printmaze(maze)
     pass
