@@ -88,7 +88,7 @@ def loadmaze(filename):
     else:
         maze = []                 # initialize maze
         for line in file:
-            maze.append(line)     # load maze line by line
+            maze.append(line.rstrip("\n"))     # load maze line by line
             
         file.close()
     
