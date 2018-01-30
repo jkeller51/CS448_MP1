@@ -45,25 +45,29 @@ class Node(object):
         if self.x  > 0:
             child_char = maze[self.x - 1][self.y]
             child = Node(self.x - 1, self.y, child_char)
-            children.append(child)
+            if (child.wall == 0) and (child.value != "P"):
+                children.append(child)
             
         # left next
         if self.y  > 0:
             child_char = maze[self.x][self.y - 1]
             child = Node(self.x, self.y - 1, child_char)
-            children.append(child)
+            if (child.wall == 0) and (child.value != "P"):
+                children.append(child)
             
         # right next
         if self.y + 1  < width:
             child_char = maze[self.x][self.y + 1]
             child = Node(self.x, self.y + 1, child_char)
-            children.append(child)
+            if (child.wall == 0) and (child.value != "P"):
+                children.append(child)
             
         # bottom next
         if self.x + 1 < height:
             child_char = maze[self.x + 1][self.y]
             child = Node(self.x + 1, self.y, child_char)
-            children.append(child)
+            if (child.wall == 0) and (child.value != "P"):
+                children.append(child)
 
         return children
 
