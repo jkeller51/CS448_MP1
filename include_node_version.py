@@ -34,6 +34,7 @@ class Node(object):
         self.x = x
         self.y = y
         self.value = char
+        self.cost = None
 
         if char == "%":
             self.wall = 1
