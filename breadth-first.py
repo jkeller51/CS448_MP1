@@ -54,8 +54,17 @@ def BFS(maze, startNode):
 
 
 if __name__ == '__main__':
+    mydict = {'1':'mediumMaze.txt',
+              '2':'bigMaze.txt',
+              '3':'openmaze.txt'}
+
+    maze_index = input('Please enter a number to choose a maze:\n'
+                       '1. medium\n'
+                       '2. big\n'
+                       '3. open\n')
+    
     # Initialize maze
-    maze = inc.loadmaze('openmaze.txt')
+    maze = inc.loadmaze(mydict[maze_index])
 
     # Find startNode
     start_x, start_y = inc.find_start(maze)
