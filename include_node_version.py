@@ -89,7 +89,19 @@ class Node(object):
         """
         self.previousNode = node
         pass
+
+    def __eq__(self, other):
+        """
+        Override default equals behavior. 2 nodes are equal if and only if
+        the two nodes have the same location (i.e. same x and y coordinates)
+        """
+        if (self.x == other.x) and (self.y == other.y):
+            return True
+        else:
+            return False
     
+
+
 
 def loadmaze(filename):
     """ Load maze into memory
