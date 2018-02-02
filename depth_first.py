@@ -6,9 +6,6 @@ Created on Mon Jan 29 16:03:19 2018
 """
 
 # commence search with depth first
-import include_node_version as inc
-
-found_solution=0
 
 def DFS(maze, startNode):
     """ Find the first working path using depth-first search
@@ -19,7 +16,6 @@ def DFS(maze, startNode):
     Returns:
         step(int): number of steps of the found path from 'P' to '.'
     """
-    
     found_solution=0
     
     # Initialize cost value
@@ -66,36 +62,3 @@ def DFS(maze, startNode):
     return step
             
         
-if __name__ == '__main__':
-    mydict = {'1':'mediumMaze.txt',
-              '2':'bigMaze.txt',
-              '3':'openmaze.txt'}
-
-    maze_index = input('Please enter a number to choose a maze:\n'
-                       '1. medium\n'
-                       '2. big\n'
-                       '3. open\n')
-    
-    # Initialize maze
-    maze = inc.loadmaze(mydict[maze_index])
-
-    # Find startNode
-    start_x, start_y = inc.find_start(maze)
-    startNode = maze[start_x][start_y]
-
-    # Find endNode
-    end_x, end_y = inc.find_end(maze)
-    endNode = maze[end_x][end_y]
-
-    # Number of steps
-    step = DFS(maze, startNode)
-
-    # Print
-    print('original maze:')
-    inc.printmaze(maze)
-    print('\nsolved maze:')
-    inc.traceback(maze, endNode)
-
-    # Output
-    print('\nnumber of nodes visited in total: {0}'.format(step))
-    print('cost of path found: {0}'.format(endNode.cost))
