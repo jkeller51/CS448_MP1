@@ -10,41 +10,6 @@ import include_node_version as inc
 
 found_solution=0
 
-def go_to_child(current, step = 0):
-    """ Expand the selected node and visit each of its children recursively.
-        Stop if the goal is found.
-
-    Args:
-        current (Node)
-        step (int) : the total number of nodes visited so far
-    Returns:
-        step(int): number of steps of the found path from 'P' to '.'
-    """
-    global found_solution
-    current.beenthere = 1
-    step+=1
-    
-    #print("coords:", current.x, current.y)
-
-    # Terminating conditions
-    if current.value == ".":
-        found_solution=1
-        return step
-    
-    children = current.find_children(maze)
-    
-    # investigate the next steps
-    for child in children:
-        # if we haven't visited this node yet, let's check it out
-        if (child.beenthere == 0):
-            child.previousNode = current        # so we can trace back later
-            child.cost = child.previousNode.cost + 1
-            step = go_to_child(child, step)     # recursive!
-            if (found_solution == 1):
-                break
-        
-    return step
-
 def DFS(maze, startNode):
     """ Find the first working path using depth-first search
 
@@ -70,6 +35,7 @@ def DFS(maze, startNode):
     children = current.find_children(maze)
     while True:
         while (children != None):
+            # investigate children
             current.beenthere = 1
             step+=1
             if current.value == ".":
@@ -77,6 +43,7 @@ def DFS(maze, startNode):
                 break
             found_child = 0
             for i in range(0,len(children)):
+                # check to see if there are unvisited children
                 child = children[i]
                 if child.beenthere == 0:
                     found_child = 1
