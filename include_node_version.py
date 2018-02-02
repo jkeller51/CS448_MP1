@@ -197,3 +197,15 @@ def traceback(maze, endNode):
 
     printmaze(maze)
     pass
+
+
+
+
+def heuristic(Node cur, Node goal):
+    """
+      Heuristic based on the manhattan distance between the current point and the goal position.
+      Used for best first search      
+    """
+     distance = abs(cur.x - end.x) + abs(cur.y - end.y)
+     return distance
+    
