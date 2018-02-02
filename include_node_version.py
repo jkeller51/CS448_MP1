@@ -213,7 +213,7 @@ def traceback(maze, endNode):
 
 
 
-def heuristic(Node cur, Node goal):
+def heuristic(cur, goal):
     """
       Heuristic based on the manhattan distance between the current point and the goal position.
       Used for best first search      
