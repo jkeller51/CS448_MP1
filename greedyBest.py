@@ -4,7 +4,7 @@
 #Heuristic to use is Manhattan's distance.
 
 
-import include_node_version as inc
+import include as inc
 from queue import PriorityQueue
 
 
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     dataQ.put(firstEntry)
 
 
-    while (!dataQ.empty()): #while the queue is not empty.
+    while (dataQ.empty() == False): #while the queue is not empty.
         curEntry = dataQ.get() #tuple with node, number
         if  curEntry[0] == endNode: #if the current node is the goal
             #done
