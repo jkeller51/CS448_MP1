@@ -99,6 +99,14 @@ class Node(object):
             return True
         else:
             return False
+        
+    def __lt__(self, other):
+-        """
+-         Determine if one node is less than the other
+-        """
+-        if (self.x + self.y) < (other.x + other.y):
+-            return True
+-        return False
     
 
 
