@@ -99,14 +99,7 @@ class Node(object):
             return True
         else:
             return False
-
-    def __lt__(self, other):
-        """
-         Determine if one node is less than the other
-        """
-        if (self.x + self.y) < (other.x + other.y):
-            return True
-        return False
+    
 
 
 
@@ -185,17 +178,25 @@ def find_end(maze):
     Args:
         maze(list):list of Node objects
     Returns:
-        endpos(tuple):(x, y) coordinates of ending point
+        endpos(tuple OR list of tuples):(x, y) coordinates of ending point;
+        
+                                when len > 1 return a list of tuples.
     """
+    endpos = []
     for line in maze:
         for char in line:
             if char.value == ".":
-                endpos = (char.x, char.y)
+                pos = (char.x, char.y)
 
                 if (debug == 1):
-                    print(endpos)
+                    print(pos)
+
+                endpos.append(pos)
                     
-                return endpos
+    if len(endpos) == 1:
+        return endpos[0]
+    else:
+        return endpos
 
 
 def traceback(maze, endNode):
@@ -218,14 +219,26 @@ def traceback(maze, endNode):
     pass
 
 
+def reset_all_nodes(maze):
+    """ Reset status for all nodes in the maze.
+    
+    Args;
+        maze(list): list of nodes
+    Returns:
+        (None)
+    """ 
+    for line in maze:
+        for char in line:
+            char.cost = 0
+            char.beenthere = 0
+            char.previousNode = None
+    pass
 
 
-
-def heuristic(cur, goal):
+def heuristic(cur, end):
     """
       Heuristic based on the manhattan distance between the current point and the goal position.
       Used for best first search      
     """
-    distance = abs(cur.x - goal.x) + abs(cur.y - goal.y)
+    distance = abs(cur.x - end.x) + abs(cur.y - end.y)
     return distance
-    
