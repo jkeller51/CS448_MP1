@@ -8,6 +8,7 @@ Created on Fri Feb  2 15:39:09 2018
 import include as inc
 import depth_first as DF
 import breadth_first as BF
+import astar as AS
 
 if __name__ == '__main__':
     search_index = input('Please enter a number to choose a search algorithm:\n'
@@ -41,6 +42,8 @@ if __name__ == '__main__':
         step = DF.DFS(maze, startNode)
     elif (search_index == '2'):
         step = BF.BFS(maze, startNode)
+    elif (search_index == '4'):
+        step = AS.Search(maze, startNode, endNode)
 
     # Print
     print('original maze:')
