@@ -35,6 +35,7 @@ class Node(object):
         self.y = y
         self.value = char
         self.cost = None
+        self.evaluation = None
 
         if char == "%":
             self.wall = 1
@@ -213,13 +214,12 @@ def traceback(maze, endNode):
 
 
 
-# errors (what is end?)
-# errors (too much indent)
-#def heuristic(cur, goal):
-#    """
-#      Heuristic based on the manhattan distance between the current point and the goal position.
-#      Used for best first search      
-#    """
-#    distance = abs(cur.x - end.x) + abs(cur.y - end.y)
-#    return distance
+
+def heuristic(cur, goal):
+    """
+      Heuristic based on the manhattan distance between the current point and the goal position.
+      Used for best first search      
+    """
+    distance = abs(cur.x - goal.x) + abs(cur.y - goal.y)
+    return distance
     
