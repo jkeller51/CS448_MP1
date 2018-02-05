@@ -41,7 +41,7 @@ if __name__ == '__main__':
     if (search_index == '1'):
         step = DF.DFS(maze, startNode)
     elif (search_index == '2'):
-        step = BF.BFS(maze, startNode)
+        step = BF.BFS(maze, startNode, endNode)
     elif (search_index == '4'):
         step = AS.Search(maze, startNode, endNode)
 
