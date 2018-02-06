@@ -9,12 +9,13 @@ Created on Tue Jan 30 15:41:28 2018
 
 import queue
 
-def BFS(maze, startNode):
+def BFS(maze, startNode, endNode):
     """ Searching for a path using BFS
 
     Args:
         maze(list): list of node objects
         startNode(Node)
+        endNode(Node)
     Returns:
         step(int): number of expand steps to find a path from 'P' to '.'
     """
@@ -34,7 +35,7 @@ def BFS(maze, startNode):
         step += 1
 
         # Terminating conditions
-        if current.value == ".":
+        if current == endNode:
             break
 
         # Update searching frontier

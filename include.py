@@ -9,7 +9,7 @@ import os
 
 
 # Indicating ON/OFF of debugging mode
-debug = 1
+debug = 0
 
 
 class Node(object):
@@ -35,6 +35,8 @@ class Node(object):
         self.y = y
         self.value = char
         self.cost = None
+        self.evaluation = None
+        self.food_path = []
 
         if char == "%":
             self.wall = 1
@@ -99,15 +101,14 @@ class Node(object):
             return True
         else:
             return False
-        
+
     def __lt__(self, other):
--        """
--         Determine if one node is less than the other
--        """
--        if (self.x + self.y) < (other.x + other.y):
--            return True
--        return False
-    
+        """
+         Determine if one node is less than the other
+        """
+        if (self.x + self.y) < (other.x + other.y):
+            return True
+        return False
 
 
 
@@ -182,7 +183,6 @@ def find_start(maze):
 
 def find_end(maze):
     """ Find ending point of a maze
-
     Args:
         maze(list):list of Node objects
     Returns:
@@ -207,6 +207,23 @@ def find_end(maze):
         return endpos
 
 
+def reset_all_nodes(maze):
+    """ Reset status for all nodes in the maze.
+    
+    Args;
+        maze(list): list of nodes
+    Returns:
+        (None)
+    """ 
+    for line in maze:
+        for char in line:
+            char.cost = 0
+            char.beenthere = 0
+            char.previousNode = None
+    pass
+
+
+
 def traceback(maze, endNode):
     """ Mark the found path from 'P' to '.' with '+'
 
@@ -227,26 +244,11 @@ def traceback(maze, endNode):
     pass
 
 
-def reset_all_nodes(maze):
-    """ Reset status for all nodes in the maze.
-    
-    Args;
-        maze(list): list of nodes
-    Returns:
-        (None)
-    """ 
-    for line in maze:
-        for char in line:
-            char.cost = 0
-            char.beenthere = 0
-            char.previousNode = None
-    pass
-
-
-def heuristic(cur, end):
+def heuristic(cur, goal):
     """
       Heuristic based on the manhattan distance between the current point and the goal position.
       Used for best first search      
     """
-    distance = abs(cur.x - end.x) + abs(cur.y - end.y)
+    distance = abs(cur.x - goal.x) + abs(cur.y - goal.y)
     return distance
+    

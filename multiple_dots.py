@@ -14,6 +14,22 @@ import breadth_first as BF
 import astar as AS
 
 
+def heuristic(path, distance_dict):
+    """ Use the farest node as heuristic
+    """
+    curr = path[-1]
+    estimate_cost = 0
+
+    distanceList = distance_dict[(curr.x, curr.y)].copy()
+    distanceList.reverse()
+
+    for food_tuple in distanceList:
+        if food_tuple[2] not in path:
+            estimate_cost = food_tuple[0]
+            break
+
+    return estimate_cost
+
 def pre_compute_distance(maze, startNode, endList):
     """ Pre-compute all pairs of nodes
 
@@ -98,13 +114,15 @@ def multiple_dots(maze, startNode, endList):
                 cost = food_tuple[0] + current_path_cost
                 new_path = path.copy()
                 new_path.append(food)
-                frontier.put((cost, new_path))
+                estimate = heuristic(new_path, distance_dict)
+                f_cost = cost + estimate
+                frontier.put((f_cost, cost, new_path))
 
         # Update path and path cost
         path_tuple = frontier.get()
 
-        path = path_tuple[1].copy()
-        current_path_cost = path_tuple[0]
+        path = path_tuple[2].copy()
+        current_path_cost = path_tuple[1]
         current = path[-1]
 
     # Mark the order of food found
@@ -120,7 +138,7 @@ def multiple_dots(maze, startNode, endList):
 
 if __name__ == '__main__':
     startTime = time.time()
-    maze = inc.loadmaze('smallSearch.txt')
+    maze = inc.loadmaze('mediumSearch.txt')
     s = inc.find_start(maze)
     startNode = maze[s[0]][s[1]]
     endList = inc.find_end(maze)
