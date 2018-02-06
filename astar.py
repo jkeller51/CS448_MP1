@@ -54,7 +54,7 @@ def Search(maze, startNode, endNode):
         unvisited.pop(lowest_index)
         
         # we've reached the goal
-        if (current.value == "."):
+        if (current.x == endNode.x) & (current.y == endNode.y):
             break
         
         # add all children to unvisited queue
@@ -75,8 +75,5 @@ def Search(maze, startNode, endNode):
                 newchild.cost = newchild.previousNode.cost + 1
                 newchild.evaluation = newchild.cost + inc.heuristic(newchild, endNode)
                 
-                
-            
-        
     return step
         
