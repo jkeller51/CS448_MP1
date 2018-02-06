@@ -9,7 +9,7 @@ import os
 
 
 # Indicating ON/OFF of debugging mode
-debug = 1
+debug = 0
 
 
 class Node(object):
@@ -36,6 +36,7 @@ class Node(object):
         self.value = char
         self.cost = None
         self.evaluation = None
+        self.food_path = []
 
         if char == "%":
             self.wall = 1
@@ -182,21 +183,46 @@ def find_start(maze):
 
 def find_end(maze):
     """ Find ending point of a maze
-
     Args:
         maze(list):list of Node objects
     Returns:
-        endpos(tuple):(x, y) coordinates of ending point
+        endpos(tuple OR list of tuples):(x, y) coordinates of ending point;
+        
+                                when len > 1 return a list of tuples.
     """
+    endpos = []
     for line in maze:
         for char in line:
             if char.value == ".":
-                endpos = (char.x, char.y)
+                pos = (char.x, char.y)
 
                 if (debug == 1):
-                    print(endpos)
+                    print(pos)
+
+                endpos.append(pos)
                     
-                return endpos
+    if len(endpos) == 1:
+        return endpos[0]
+    else:
+        return endpos
+
+
+def reset_all_nodes(maze):
+    """ Reset status for all nodes in the maze.
+    
+    Args;
+        maze(list): list of nodes
+    Returns:
+        (None)
+    """ 
+    for line in maze:
+        for char in line:
+            char.cost = 0
+            char.beenthere = 0
+            char.previousNode = None
+            char.evaluation = None
+    pass
+
 
 
 def traceback(maze, endNode):
@@ -217,9 +243,6 @@ def traceback(maze, endNode):
 
     printmaze(maze)
     pass
-
-
-
 
 
 def heuristic(cur, goal):
