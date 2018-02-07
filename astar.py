@@ -11,6 +11,16 @@ import include as inc
 
 debug=0
 def Search(maze, startNode, endNode):
+    """ A* Search
+
+    Args:
+        maze(list): list of Nodes
+        startNode(Node): start point
+        endNode(Node): goal node
+    Returns:
+        step(int): number of expanded steps
+    """
+    
     global debug
     # Initialize frontier queue
     unvisited = []
