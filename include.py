@@ -10,6 +10,7 @@ import os
 
 # Indicating ON/OFF of debugging mode
 debug = 0
+boxid=0
 
 class Box():
     """ This object has a position
@@ -24,9 +25,12 @@ class Box():
     ondot=False
     
     def __init__(self, x, y, maze):
+        global boxid
         self.maze = maze
         self.x=x
         self.y=y
+        self.id = boxid
+        boxid+=1
 #       We can't do this because the maze hasn't been properly set up yet        
 #        if (self.maze[self.x][self.y].value == "."):
 #            self.ondot=True
