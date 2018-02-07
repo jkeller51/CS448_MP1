@@ -8,13 +8,14 @@ Created on Fri Feb  2 15:39:09 2018
 import include as inc
 import depth_first as DF
 import breadth_first as BF
+import greedy_best as GB
 import astar as AS
 
 if __name__ == '__main__':
     search_index = input('Please enter a number to choose a search algorithm:\n'
                          '1. Depth-first\n'
                          '2. Breadth-first\n'
-                         '3. Greedy depth-first\n'
+                         '3. Greedy best-first\n'
                          '4. A*\n')
     
     mydict = {'1':'mediumMaze.txt',
@@ -42,6 +43,8 @@ if __name__ == '__main__':
         step = DF.DFS(maze, startNode)
     elif (search_index == '2'):
         step = BF.BFS(maze, startNode, endNode)
+    elif (search_index == '3'):
+        step = GB.GBFS(maze, startNode, endNode)
     elif (search_index == '4'):
         step = AS.Search(maze, startNode, endNode)
 
