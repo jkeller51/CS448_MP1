@@ -11,6 +11,36 @@ import os
 # Indicating ON/OFF of debugging mode
 debug = 0
 
+class Box():
+    """ This object has a position
+    and a variable to indicate if it's on a dot
+    
+    Args:
+        
+    """
+    maze=None
+    x=0
+    y=0
+    ondot=False
+    
+    def __init__(self, x, y, maze):
+        self.maze = maze
+        self.x=x
+        self.y=y
+#       We can't do this because the maze hasn't been properly set up yet        
+#        if (self.maze[self.x][self.y].value == "."):
+#            self.ondot=True
+            
+    def move(self,x,y):
+        # Please use this method to change position
+        # it will automatically update relevant variables
+        self.x=x
+        self.y=y
+        if (self.maze[self.x][self.y].value == "."):
+            self.ondot=True
+        else:
+            self.ondot=False
+
 
 class Node(object):
     """ Using coordinates (x, y) to mark the position
@@ -40,6 +70,7 @@ class Node(object):
 
         if char == "%":
             self.wall = 1
+            
 
         pass
 
@@ -112,7 +143,7 @@ class Node(object):
 
 
 
-def loadmaze(filename):
+def loadmaze(filename, part2=False):
     """ Load maze into memory
 
     Args:
@@ -122,6 +153,7 @@ def loadmaze(filename):
     """
     myfile = open(filename)
     maze = []
+    boxes = []
     x = 0
     for line in myfile:
         row = []
@@ -129,7 +161,12 @@ def loadmaze(filename):
         for char in line:
             if char == "\n":
                 continue
-
+            if char == "b":
+                char = " "
+                boxes.append(Box(x,y,maze))
+            if char == "B":
+                char = "."
+                boxes.append(Box(x,y,maze))
             row.append(Node(x, y, char))
             y += 1
 
@@ -138,7 +175,12 @@ def loadmaze(filename):
 
     myfile.close()
     
-    return maze
+    if (part2 == False):
+        return maze
+    else:
+        for b in boxes:
+            b.move(b.x,b.y)      # this is just to update the ondot property
+        return maze, boxes
 
 
 def printmaze(maze):
