@@ -226,7 +226,7 @@ def reset_all_nodes(maze):
 
 
 def traceback(maze, endNode):
-    """ Mark the found path from 'P' to '.' with '+'
+    """ Mark the found path from 'P' to '.' with '.'
 
     Args;
         endNode(node): ending point of the maze
@@ -237,7 +237,7 @@ def traceback(maze, endNode):
     previous = current.previousNode
 
     while previous.value != "P":
-        previous.value = "+"
+        previous.value = "."
         current = previous
         previous = current.previousNode
 
