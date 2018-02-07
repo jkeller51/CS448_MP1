@@ -14,6 +14,22 @@ import breadth_first as BF
 import astar as AS
 
 
+def compute_cost_step(maze, startNode, path):
+    """
+    """
+    cost = 0
+    step = 0
+    curr = startNode
+
+    for node in path:
+        inc.reset_all_nodes(maze)
+        step += AS.Search(maze, curr, node)
+        cost += node.cost
+        curr = node
+
+    return cost, step
+
+
 def heuristic(path, distance_dict):
     """ Use the farest node as heuristic
 
@@ -140,7 +156,7 @@ def multiple_dots(maze, startNode, endList):
     # Print maze
     inc.printmaze(maze)
 
-    return current_path_cost
+    return path
 
 
 if __name__ == '__main__':
@@ -166,9 +182,11 @@ if __name__ == '__main__':
     endList = inc.find_end(maze)
 
     # Search, return cost
-    cost = multiple_dots(maze, startNode, endList)
+    path = multiple_dots(maze, startNode, endList)
+    cost, step = compute_cost_step(maze, startNode, path)
     endTime = time.time()
 
     print('\nCost: {0}'.format(cost))
-    print('Time used: {0} min(s)'.format((endTime - startTime) / 60.0))
+    print('Expanded nodes: {0}'.format(step))
+    print('Time used: {:.4f} min(s)'.format((endTime - startTime) / 60.0))
     
