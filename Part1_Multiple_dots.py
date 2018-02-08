@@ -25,6 +25,7 @@ class PathState(object):
             self.node = path[-1]
 
     def __hash__(self):
+        """ Hash function """
         return hash((self.path, self.node))
 
 
@@ -88,30 +89,6 @@ def mst_heuristic(G, path):
         estimate += temp[2]['weight']
 
     return estimate
-
-
-def compute_cost_step(maze, startNode, path):
-    """ Compute cost and nodes expanded of a path
-
-    Args:
-        maze(list): list of Nodes
-        startNode(Node): start point
-        path(list): current path, list of nodes
-    Returns:
-        cost(int)
-        step(int)
-    """
-    cost = 0
-    step = 0
-    curr = startNode
-
-    for node in path:
-        inc.reset_all_nodes(maze)
-        step += AS.Search(maze, curr, node)
-        cost += node.cost
-        curr = node
-
-    return cost, step
 
 
 def pre_compute_distance(maze, startNode, endList):
@@ -186,11 +163,9 @@ def multiple_dots(maze, startNode, endList):
     path = []
     state_dict.update({PathState(path): 0})
 
-    # Wheter to push into frontier
-    _ADD_TO_FRONTIER_ = True
-
     # Initialize path cost
     current_path_cost = 0
+    step = 0
     
     # Initialize priority queue
     frontier = queue.PriorityQueue()
@@ -198,6 +173,7 @@ def multiple_dots(maze, startNode, endList):
     # Initialize current node
     current = startNode
 
+    # Main loop
     while len(path) < n:
         # Check repeated states
         state = PathState(path)
@@ -227,6 +203,37 @@ def multiple_dots(maze, startNode, endList):
         path = path_tuple[2].copy()
         current_path_cost = path_tuple[1]
         current = path[-1]
+        step += 1
+
+    # Check optimality
+    while True:
+        path_tuple = frontier.get()
+        if path_tuple[0] > current_path_cost:
+            break
+        else:
+            temp_path = path_tuple[2]
+            temp_cost = path_tuple[1]
+            temp_current = temp_path[-1]
+            if len(temp_path) == n:
+                if temp_cost >= current_path_cost:
+                    continue
+                else:
+                    path = temp_path
+                    current_path_cost = temp_cost
+                    current = temp_current
+                step += 1
+            else:
+                myList = distance_dict[(temp_current.x, temp_current.y)].copy()
+                for food_tuple in myList:
+                    food = food_tuple[2]
+                    if food not in temp_path:
+                        cost = food_tuple[0] + temp_cost
+                        new_path = temp_path.copy()
+                        new_path.append(food)
+                        estimate = mst_heuristic(G, new_path)
+                        f_cost = cost + estimate
+                        frontier.put((f_cost, cost, new_path))
+            
 
     # Mark the order of food found
     mark_list = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -236,7 +243,7 @@ def multiple_dots(maze, startNode, endList):
     # Print maze
     inc.printmaze(maze)
 
-    return path
+    return current_path_cost, step
 
 
 if __name__ == '__main__':
@@ -260,9 +267,8 @@ if __name__ == '__main__':
     # Find end list
     endList = inc.find_end(maze)
 
-    # Search, return cost
-    path = multiple_dots(maze, startNode, endList)
-    cost, step = compute_cost_step(maze, startNode, path)
+    # Search, return cost and step
+    cost, step = multiple_dots(maze, startNode, endList)
     endTime = time.time()
 
     print('\nCost: {0}'.format(cost))
