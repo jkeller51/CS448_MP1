@@ -85,5 +85,8 @@ def Search(maze, startNode, endNode):
                 newchild.cost = newchild.previousNode.cost + 1
                 newchild.evaluation = newchild.cost + inc.heuristic(newchild, endNode)
                 
-    return step
+    if (current.x == endNode.x) and (current.y == endNode.y):  # success
+        return step
+    else:   # failure
+        return -1
         

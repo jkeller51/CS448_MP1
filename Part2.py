@@ -6,18 +6,35 @@ Created on Tue Feb  6 20:16:40 2018
 """
 
 import include as inc
+import astar as AS
+import copy
 
-def find_moves(maze, boxes):
+def find_moves(maze, boxes, startNode):
     """
     Determine possible next moves (in terms of the next box to move and what direction)
+    
+    Rejects paths where the player is blocked from getting into position.
+    
+    Structure returned:
+        Each row has 3 objects
+        1. Box to be moved
+        2. Node to move to
+        3. Node player needs to be in to perform the move
+        4. Steps required for player to get into position
     
     """
     moves = []
     
     for box in boxes:
-        children = find_box_moves(box.x, box.y, maze, boxes)
-        for child in children:
-            moves.append([box,child])
+        children, playerpositions = find_box_moves(box.x, box.y, maze, boxes)
+        for i in range(0,len(children)):
+            child = children[i]
+            pp = playerpositions[i]
+            steps = find_path(maze, boxes, startNode, pp)
+            if (steps != -1):
+                # check if path exists for player
+                # (may be slow)
+                moves.append([box,child,pp,steps])
             
     return moves
         
@@ -27,6 +44,7 @@ def find_box_moves(x,y, maze, boxes):
     """
     children = maze[x][y].find_children(maze)      # where can we move
     children2 = []
+    playerpositions = []
     for c in children:
         if check_location(c.x,c.y, boxes):
             # just kidding, we can't move here because there is a box
@@ -39,7 +57,8 @@ def find_box_moves(x,y, maze, boxes):
         
         # if we didn't continue, now we can add to the list
         children2.append(c)
-    return children2
+        playerpositions.append(maze[checkx][checky])
+    return children2, playerpositions
     
 def check_location(x,y,boxes):
     """
@@ -96,19 +115,35 @@ def get_box(boxes, ID):
     return None
         
         
+def find_path(maze, boxes, startNode, endNode):
+    """
+    Find a path from start to end, avoiding boxes
+    return number of steps of this path
+    """
+    maze_boxes = copy.deepcopy(maze)
+    for b in boxes:
+        maze_boxes[b.x][b.y].wall=1  # make boxes act like walls
+        
+    steps = AS.Search(maze_boxes, startNode, endNode)
+    
+    
+    return steps
+        
 def Search(maze, boxes, startNode):
     
     boxstate = []
     while get_progress(boxes) > 0:
         
-        moves = find_moves(maze, boxes)
+        moves = find_moves(maze, boxes, startNode)
         for m in moves:
-            newstate = boxes.copy()
+            newstate = copy.deepcopy(boxes)
             num = m[0].id
             get_box(newstate, num).move(m[1].x, m[1].y)
             boxstate.append(newstate)
             print("One possibility:")
             print_state(maze, newstate)
+            print("Steps:")
+            print(m[3])
         
         break
     
