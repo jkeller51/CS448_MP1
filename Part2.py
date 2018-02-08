@@ -8,6 +8,7 @@ Created on Tue Feb  6 20:16:40 2018
 import include as inc
 import astar as AS
 import copy
+import time
 
 debug=0
 
@@ -144,14 +145,30 @@ def find_path(maze, boxes, startNode, endNode):
     
     return steps
 
+def in_corner(maze, node):
+    # returns true if this location is in a corner
+    # and not on a dot
+    if (maze[node.x][node.y].value == "."):
+        return False
+    if ((maze[node.x-1][node.y].wall == 1 and  maze[node.x][node.y-1].wall == 1) or 
+        (maze[node.x-1][node.y].wall == 1 and  maze[node.x][node.y+1].wall == 1) or
+        (maze[node.x+1][node.y].wall == 1 and  maze[node.x][node.y+1].wall == 1) or
+        (maze[node.x+1][node.y].wall == 1 and  maze[node.x][node.y-1].wall == 1)):
+        return True
+    return False
 
-def find_win_states(maze, boxes, startNode):
+
+def find_win_states_blind(maze, boxes, startNode):
+    """
+    Find the best win states
+    Expands lowest cost next moves until a solution is found
+    """
     boxstates = []
     winstates = []
     global debug
     
     boxstates.append((boxes,0,startNode,None))  # starting state
-    leaststeps = 99
+    leaststeps = 999
     
     """
     boxstates structure
@@ -169,54 +186,70 @@ def find_win_states(maze, boxes, startNode):
             
         smallestcost = 99
         
+        # find the lowest cost state to try next
         for state,cost,position,previous in boxstates:
-            if (debug==1):
-                print("\n\nCurrent state:")
-                print_state(maze, state, position)
-            if get_progress(state) == 0:
-                if (debug==1):
-                    print("Win state.")
-                #print("Win state found")
-                winstates.append((state, cost, position, previous))
-                if (cost < leaststeps):
-                    leaststeps = cost
-                continue
-            
-            if (cost > leaststeps):
-                # this branch is not a feasible path
-                continue
-            
             if (cost < smallestcost):
+                togo = (state,cost,position,previous)
                 smallestcost = cost
-            
-            curstate = (state,cost,position,previous)
-            
-            
-            moves = find_moves(maze, state, position)
-            if (len(moves) == 0 and debug==1):
-                print("No moves.")
-            
-            for m in moves:
-                newstate = copy.deepcopy(state)
-                num = m[0].id
-                curbox = get_box(newstate, num)
-                curx = curbox.x
-                cury = curbox.y
-                curbox.move(m[1].x, m[1].y)
-                newboxstates.append((newstate, cost+m[3], maze[curx][cury], curstate))
-                if (debug==1):
-                    print("\n")
-                    print("One possibility:")
-                    print_state(maze, newstate, maze[curx][cury])
-                    print("Cost of move:")
-                    print(m[3])
-                    print("Total cost of this state:")
-                    print(cost+m[3])
-                
         
-        boxstates = newboxstates
+        (state,cost,position,previous) = togo
+        
+        ### BEGIN State expansion
+        
+        if (debug==1):
+            print("\n\nCurrent state:")
+            print_state(maze, state, position)
+            
+        if get_progress(state) == 0:
+            if (debug==1):
+                print("Win state.")
+            #print("Win state found")
+            winstates.append((state, cost, position, previous))
+            boxstates.remove(togo)
+            if (cost < leaststeps):
+                leaststeps = cost
+            continue
+        
+        if (cost > leaststeps):
+            # obviously this branch isn't going to be the best
+            boxstates.remove(togo)
+            continue
+        
+        curstate = (state,cost,position,previous)
+        
+        
+        moves = find_moves(maze, state, position)
+        if (len(moves) == 0 and debug==1):
+            print("No moves.")
+        
+        for m in moves:
+            
+            # check if this box is moved into a corner...
+            # this is always a losing situation
+            if (in_corner(maze,m[1])):
+                continue
+            
+            newstate = copy.deepcopy(state)
+            num = m[0].id
+            curbox = get_box(newstate, num)
+            curx = curbox.x
+            cury = curbox.y
+            curbox.move(m[1].x, m[1].y)
+            boxstates.append((newstate, cost+m[3], maze[curx][cury], curstate))
+            if (debug==1):
+                print("\n")
+                print("One possibility:")
+                print_state(maze, newstate, maze[curx][cury])
+                print("Cost of move:")
+                print(m[3])
+                print("Total cost of this state:")
+                print(cost+m[3])
+                
+        boxstates.remove(togo)
     
     return winstates
+
+
     
 
 def print_solution(maze, endState):
@@ -237,13 +270,14 @@ def print_solution(maze, endState):
         
 def Search(maze, boxes, startNode):
     # find all potential win states
-    winstates = find_win_states(maze, boxes, startNode)
+    winstates = find_win_states_blind(maze, boxes, startNode)
 
     bestcost = 9999
     beststate = None
     for state in winstates:
         if state[1] < bestcost:
             beststate = state
+            bestcost = state[1]
     
     print_solution(maze, beststate)
     
@@ -257,7 +291,8 @@ def Search(maze, boxes, startNode):
         
 if __name__ == '__main__':
     # Initialize maze
-    maze, boxes = inc.loadmaze("sokobanTest2.txt", True)
+    startTime = time.time()
+    maze, boxes = inc.loadmaze("sokoban3.txt", True)
 
     # Find startNode
     start_x, start_y = inc.find_start(maze)
@@ -265,6 +300,7 @@ if __name__ == '__main__':
     
     
     Search(maze, boxes, startNode)
-    
+    endTime = time.time()
+    print('\nTime used: {0} min(s)'.format((endTime - startTime) / 60.0))
     
     
