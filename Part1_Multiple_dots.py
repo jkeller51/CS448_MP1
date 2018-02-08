@@ -8,14 +8,98 @@ Created on Sun Feb  4 12:35:37 2018
 import queue
 import operator
 import time
+import networkx as nx
 import include as inc
 import depth_first as DF
 import breadth_first as BF
 import astar as AS
 
 
-def compute_cost_step(maze, startNode, path):
+class PathState(object):
+    """ To define a state. """
+    def __init__(self, path):
+        self.path = frozenset(path)
+        self.node = None
+
+        if len(path) > 0:
+            self.node = path[-1]
+
+    def __hash__(self):
+        return hash((self.path, self.node))
+
+
+def generate_graph(distance_dict, endList):
+    """ Generate a vertex graph using networkx
+
+    Args:
+        distance_dict(dict): the dict returned by pre-computing
+        endList(list): list of tuples, each of which marking a dot
+    Returns:
+        G(nx.Graph)
     """
+    G = nx.Graph()
+
+    # Add nodes
+    G.add_nodes_from(endList)
+
+    # Add edges
+    for u in endList:
+        mylist = distance_dict[u]
+        for mytuple in mylist:
+            node = mytuple[2]
+            d = mytuple[0]
+            v = (node.x, node.y)
+            G.add_edge(u, v, weight=d)
+    
+    return G
+
+
+def modify_graph(G, path):
+    """ Remove all nodes in path from G
+
+    Args:
+        G(nx.Graph): original vertex graph
+        path(list): current path, list of nodes
+    Returns:
+        new_G(nx.Graph)
+    """
+    new_G = G.copy()
+
+    for node in path:
+        coordinate = (node.x, node.y)
+        new_G.remove_node(coordinate)
+    return new_G
+
+
+def mst_heuristic(G, path):
+    """ Heuristic using mst
+
+    Args:
+        G(nx.Graph): original vertex graph
+        path(list): current path, list of nodes
+    Returns:
+        new_G(nx.Graph)
+    """
+    new_G = modify_graph(G, path)
+    estimate = 0
+    T = nx.minimum_spanning_tree(new_G, weight='weight')
+
+    for temp in T.edges(data=True):
+        estimate += temp[2]['weight']
+
+    return estimate
+
+
+def compute_cost_step(maze, startNode, path):
+    """ Compute cost and nodes expanded of a path
+
+    Args:
+        maze(list): list of Nodes
+        startNode(Node): start point
+        path(list): current path, list of nodes
+    Returns:
+        cost(int)
+        step(int)
     """
     cost = 0
     step = 0
@@ -28,29 +112,6 @@ def compute_cost_step(maze, startNode, path):
         curr = node
 
     return cost, step
-
-
-def heuristic(path, distance_dict):
-    """ Use the farest node as heuristic
-
-    Args:
-        path(list): current path, list of nodes
-        distance_dict(dict): the dict returned by pre-computing
-    Returns:
-        estimate_cost(int)
-    """
-    curr = path[-1]
-    estimate_cost = 0
-
-    distanceList = distance_dict[(curr.x, curr.y)].copy()
-    distanceList.reverse()
-
-    for food_tuple in distanceList:
-        if food_tuple[2] not in path:
-            estimate_cost = food_tuple[0]
-            break
-
-    return estimate_cost
 
 
 def pre_compute_distance(maze, startNode, endList):
@@ -114,9 +175,19 @@ def multiple_dots(maze, startNode, endList):
 
     # Distance dict
     distance_dict = pre_compute_distance(maze, startNode, endList)
+
+    # Vertex graph
+    G = generate_graph(distance_dict, endList)
+
+    # State dict
+    state_dict = dict()
     
     # Initialize path
     path = []
+    state_dict.update({PathState(path): 0})
+
+    # Wheter to push into frontier
+    _ADD_TO_FRONTIER_ = True
 
     # Initialize path cost
     current_path_cost = 0
@@ -125,10 +196,20 @@ def multiple_dots(maze, startNode, endList):
     frontier = queue.PriorityQueue()
 
     # Initialize current node
-    current_tuple = (0, startNode, path)
     current = startNode
 
     while len(path) < n:
+        # Check repeated states
+        state = PathState(path)
+        if state not in state_dict:
+            state_dict.update({state: current_path_cost})
+        else:
+            path_tuple = frontier.get()
+            path = path_tuple[2].copy()
+            current_path_cost = path_tuple[1]
+            current = path[-1]
+            continue
+        
         # Update priority queue
         myList = distance_dict[(current.x, current.y)].copy()
         for food_tuple in myList:
@@ -137,13 +218,12 @@ def multiple_dots(maze, startNode, endList):
                 cost = food_tuple[0] + current_path_cost
                 new_path = path.copy()
                 new_path.append(food)
-                estimate = heuristic(new_path, distance_dict)
+                estimate = mst_heuristic(G, new_path)
                 f_cost = cost + estimate
                 frontier.put((f_cost, cost, new_path))
 
         # Update path and path cost
         path_tuple = frontier.get()
-
         path = path_tuple[2].copy()
         current_path_cost = path_tuple[1]
         current = path[-1]
@@ -164,7 +244,6 @@ if __name__ == '__main__':
     mydict = {'1':'tinySearch.txt',
               '2':'smallSearch.txt',
               '3':'mediumSearch.txt'}
-
     maze_index = input('Please enter a number to choose a maze:\n'
                        '1. tiny\n'
                        '2. small\n'

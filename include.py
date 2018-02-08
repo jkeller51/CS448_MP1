@@ -110,6 +110,10 @@ class Node(object):
             return True
         return False
 
+    def __hash__(self):
+        """ Hash the node """
+        return hash((self.x, self.y))
+
 
 
 def loadmaze(filename):
