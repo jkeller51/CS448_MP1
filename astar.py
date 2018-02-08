@@ -26,6 +26,11 @@ def Search(maze, startNode, endNode):
     unvisited = []
     unvisited.append(startNode)
     
+    # reset node beenthere
+    for x in range(0, len(maze)):
+        for y in range(0, len(maze[0])):
+            maze[x][y].beenthere = 0
+    
     current = startNode
     
     startNode.cost=0

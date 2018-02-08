@@ -9,6 +9,8 @@ import include as inc
 import astar as AS
 import copy
 
+debug=0
+
 def find_moves(maze, boxes, startNode):
     """
     Determine possible next moves (in terms of the next box to move and what direction)
@@ -16,11 +18,11 @@ def find_moves(maze, boxes, startNode):
     Rejects paths where the player is blocked from getting into position.
     
     Structure returned:
-        Each row has 3 objects
-        1. Box to be moved
-        2. Node to move to
-        3. Node player needs to be in to perform the move
-        4. Steps required for player to get into position
+        Each row has 4 objects
+        0. Box to be moved
+        1. Node to move to
+        2. Node player needs to be in to perform the move
+        3. Steps required for player to get into position
     
     """
     moves = []
@@ -76,7 +78,7 @@ def check_location(x,y,boxes):
         
     
     
-def print_state(maze, boxes):
+def print_state(maze, boxes, playerposition=None):
     """
     
     Print the current state of the map
@@ -91,7 +93,20 @@ def print_state(maze, boxes):
                 else:
                     line+="b"
             else:
-                line+=maze[x][y].value
+                # overwrite player position if we want to
+                if (playerposition is None):
+                    line+=maze[x][y].value
+                else:
+                    if (maze[x][y].value == "P"):
+                        if (playerposition.x == x and playerposition.y == y):
+                            line+="P"
+                        else:
+                            line+=" "
+                    else:
+                        if (playerposition.x == x and playerposition.y == y):
+                            line+="P"
+                        else:
+                            line+=maze[x][y].value
         print(line)
         
 def get_progress(boxes):
@@ -128,38 +143,126 @@ def find_path(maze, boxes, startNode, endNode):
     
     
     return steps
+
+
+def find_win_states(maze, boxes, startNode):
+    boxstates = []
+    winstates = []
+    global debug
+    
+    boxstates.append((boxes,0,startNode,None))  # starting state
+    leaststeps = 99
+    
+    """
+    boxstates structure
+        0. list of box objects
+        1. total steps up to this point
+        2. player position
+        3. previous state
+    """
+    
+    while len(boxstates) > 0:
+        newboxstates = []
+        
+        if (debug==1):
+            print("\n\nSTATES:",len(boxstates))
+            
+        smallestcost = 99
+        
+        for state,cost,position,previous in boxstates:
+            if (debug==1):
+                print("\n\nCurrent state:")
+                print_state(maze, state, position)
+            if get_progress(state) == 0:
+                if (debug==1):
+                    print("Win state.")
+                #print("Win state found")
+                winstates.append((state, cost, position, previous))
+                if (cost < leaststeps):
+                    leaststeps = cost
+                continue
+            
+            if (cost > leaststeps):
+                # this branch is not a feasible path
+                continue
+            
+            if (cost < smallestcost):
+                smallestcost = cost
+            
+            curstate = (state,cost,position,previous)
+            
+            
+            moves = find_moves(maze, state, position)
+            if (len(moves) == 0 and debug==1):
+                print("No moves.")
+            
+            for m in moves:
+                newstate = copy.deepcopy(state)
+                num = m[0].id
+                curbox = get_box(newstate, num)
+                curx = curbox.x
+                cury = curbox.y
+                curbox.move(m[1].x, m[1].y)
+                newboxstates.append((newstate, cost+m[3], maze[curx][cury], curstate))
+                if (debug==1):
+                    print("\n")
+                    print("One possibility:")
+                    print_state(maze, newstate, maze[curx][cury])
+                    print("Cost of move:")
+                    print(m[3])
+                    print("Total cost of this state:")
+                    print(cost+m[3])
+                
+        
+        boxstates = newboxstates
+    
+    return winstates
+    
+
+def print_solution(maze, endState):
+    print("SOLUTION:")
+    process = []
+    curstate = endState
+    while curstate is not None:
+        process.insert(0, curstate)
+        curstate = curstate[3]
+        
+        
+    for state in process:
+        print("\n")
+        print_state(maze, state[0], state[2])
+        
+    print("Total steps:", endState[1])
+        
         
 def Search(maze, boxes, startNode):
+    # find all potential win states
+    winstates = find_win_states(maze, boxes, startNode)
+
+    bestcost = 9999
+    beststate = None
+    for state in winstates:
+        if state[1] < bestcost:
+            beststate = state
     
-    boxstate = []
-    while get_progress(boxes) > 0:
-        
-        moves = find_moves(maze, boxes, startNode)
-        for m in moves:
-            newstate = copy.deepcopy(boxes)
-            num = m[0].id
-            get_box(newstate, num).move(m[1].x, m[1].y)
-            boxstate.append(newstate)
-            print("One possibility:")
-            print_state(maze, newstate)
-            print("Steps:")
-            print(m[3])
-        
-        break
+    print_solution(maze, beststate)
+    
+    
+
+    
+    
     
     
         
         
 if __name__ == '__main__':
     # Initialize maze
-    maze, boxes = inc.loadmaze("sokobanTest.txt", True)
+    maze, boxes = inc.loadmaze("sokobanTest2.txt", True)
 
     # Find startNode
     start_x, start_y = inc.find_start(maze)
     startNode = maze[start_x][start_y]
     
-    print("Original state:")
-    print_state(maze, boxes)
     
     Search(maze, boxes, startNode)
     
