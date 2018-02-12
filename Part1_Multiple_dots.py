@@ -236,7 +236,7 @@ def multiple_dots(maze, startNode, endList):
             
 
     # Mark the order of food found
-    mark_list = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    mark_list = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     for i in range(n):
         path[i].value = mark_list[i]
 
