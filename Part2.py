@@ -45,7 +45,7 @@ def find_box_moves(x,y, maze, boxes):
     """
     Find out which directions a box at (x,y) can move
     """
-    children = maze[x][y].find_children(maze)      # where can we move
+    children = maze[x][y].find_children(maze,True)      # where can we move
     children2 = []
     playerpositions = []
     for c in children:
@@ -158,6 +158,63 @@ def in_corner(maze, node):
     return False
 
 
+def add_box_state(maze, boxstates, this_state):
+    """ adds the box state but checks for a duplicate in current states as
+    well as previous states
+    """
+    boxes = this_state[0]
+    index=-1
+    lowcost = this_state[1]
+    
+    # first check for duplicates in past states
+    previous = this_state[3]
+    
+    while previous != None:
+        identical=1
+        # check all the boxes
+        for b in boxes:
+            if not check_location(b.x, b.y, previous[0]):
+                identical=0
+                break
+            
+        if (previous[2] != this_state[2]):
+            identical=0
+            break
+            
+        if (identical==1): 
+            # we found a duplicate, so we will not add this state to the queue
+            return boxstates
+        previous = previous[3]
+    
+    for i in range(0,len(boxstates)):
+        state,cost,position,previous = boxstates[i]
+        
+        identical=1
+        for b in boxes:
+            if not check_location(b.x, b.y, state):
+                identical=0
+                break
+            
+        if (position != this_state[2]):
+            identical=0
+        
+        if (identical == 0):
+            continue
+        
+        index = i
+        if (cost < lowcost):
+            lowcost = cost
+        
+    if (index != -1 and lowcost > this_state[1]):
+        # there is a duplicate that is worse. remove it
+        boxstates.append(this_state)
+        boxstates.pop(index)
+    elif (index == -1):
+        # no duplicates
+        boxstates.append(this_state)
+        
+    return boxstates
+
 def find_win_states_blind(maze, boxes, startNode):
     """
     Find the best win states
@@ -179,7 +236,6 @@ def find_win_states_blind(maze, boxes, startNode):
     """
     
     while len(boxstates) > 0:
-        newboxstates = []
         
         if (debug==1):
             print("\n\nSTATES:",len(boxstates))
@@ -188,13 +244,18 @@ def find_win_states_blind(maze, boxes, startNode):
         
         # find the lowest cost state to try next
         for state,cost,position,previous in boxstates:
-            if (cost < smallestcost):
+            if (cost+get_progress(state) < smallestcost):
                 togo = (state,cost,position,previous)
-                smallestcost = cost
+                smallestcost = cost+get_progress(state)
+                
+        #print(smallestcost)
+        if (smallestcost > leaststeps):
+            break
         
         (state,cost,position,previous) = togo
         
         ### BEGIN State expansion
+        
         
         if (debug==1):
             print("\n\nCurrent state:")
@@ -212,8 +273,7 @@ def find_win_states_blind(maze, boxes, startNode):
         
         if (cost > leaststeps):
             # obviously this branch isn't going to be the best
-            boxstates.remove(togo)
-            continue
+            break
         
         curstate = (state,cost,position,previous)
         
@@ -227,6 +287,7 @@ def find_win_states_blind(maze, boxes, startNode):
             # check if this box is moved into a corner...
             # this is always a losing situation
             if (in_corner(maze,m[1])):
+                
                 continue
             
             newstate = copy.deepcopy(state)
@@ -235,7 +296,8 @@ def find_win_states_blind(maze, boxes, startNode):
             curx = curbox.x
             cury = curbox.y
             curbox.move(m[1].x, m[1].y)
-            boxstates.append((newstate, cost+m[3], maze[curx][cury], curstate))
+            #boxstates.append((newstate, cost+m[3], maze[curx][cury], curstate))
+            boxstates = add_box_state(maze, boxstates, (newstate, cost+m[3], maze[curx][cury], curstate))
             if (debug==1):
                 print("\n")
                 print("One possibility:")

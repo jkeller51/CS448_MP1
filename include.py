@@ -78,7 +78,7 @@ class Node(object):
 
         pass
 
-    def find_children(self, maze):
+    def find_children(self, maze, ignoreplayer=False):
         """ Find all children nodes of a particular node
 
         Args:
@@ -93,25 +93,25 @@ class Node(object):
         # up next
         if self.x  > 0:
             child = maze[self.x - 1][self.y]
-            if (child.wall == 0) and (child.value != "P"):
+            if (child.wall == 0) and (child.value != "P" or ignoreplayer==True):
                 children.append(child)
             
         # left next
         if self.y  > 0:
             child = maze[self.x][self.y - 1]
-            if (child.wall == 0) and (child.value != "P"):
+            if (child.wall == 0) and (child.value != "P" or ignoreplayer==True):
                 children.append(child)
             
         # right next
         if self.y + 1  < width:
             child = maze[self.x][self.y + 1]
-            if (child.wall == 0) and (child.value != "P"):
+            if (child.wall == 0) and (child.value != "P" or ignoreplayer==True):
                 children.append(child)
             
         # bottom next
         if self.x + 1 < height:
             child = maze[self.x + 1][self.y]
-            if (child.wall == 0) and (child.value != "P"):
+            if (child.wall == 0) and (child.value != "P" or ignoreplayer==True):
                 children.append(child)
 
         return children
