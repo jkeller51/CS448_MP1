@@ -222,6 +222,7 @@ def find_win_states_blind(maze, boxes, startNode):
     """
     boxstates = []
     winstates = []
+    step=0
     global debug
     
     boxstates.append((boxes,0,startNode,None))  # starting state
@@ -240,22 +241,20 @@ def find_win_states_blind(maze, boxes, startNode):
         if (debug==1):
             print("\n\nSTATES:",len(boxstates))
             
-        smallestcost = 99
+        smallestcost = 9999
         
         # find the lowest cost state to try next
         for state,cost,position,previous in boxstates:
             if (cost+get_progress(state) < smallestcost):
                 togo = (state,cost,position,previous)
                 smallestcost = cost+get_progress(state)
-                
-        #print(smallestcost)
-        if (smallestcost > leaststeps):
-            break
         
         (state,cost,position,previous) = togo
         
         ### BEGIN State expansion
-        
+        print("Cost:",cost)
+        print("\n\nCurrent state:")
+        print_state(maze, state, position)
         
         if (debug==1):
             print("\n\nCurrent state:")
@@ -277,6 +276,7 @@ def find_win_states_blind(maze, boxes, startNode):
         
         curstate = (state,cost,position,previous)
         
+        step+=1
         
         moves = find_moves(maze, state, position)
         if (len(moves) == 0 and debug==1):
@@ -306,15 +306,16 @@ def find_win_states_blind(maze, boxes, startNode):
                 print(m[3])
                 print("Total cost of this state:")
                 print(cost+m[3])
-                
-        boxstates.remove(togo)
+        
+        if togo in boxstates:        
+            boxstates.remove(togo)
     
-    return winstates
+    return winstates,step
 
 
     
 
-def print_solution(maze, endState):
+def print_solution(maze, endState, step):
     print("SOLUTION:")
     process = []
     curstate = endState
@@ -324,15 +325,16 @@ def print_solution(maze, endState):
         
         
     for state in process:
-        print("\n")
+        print("")
         print_state(maze, state[0], state[2])
         
-    print("Total steps:", endState[1])
+    print("Total cost:", endState[1])
+    print("Number of expanded nodes:", step)
         
         
 def Search(maze, boxes, startNode):
     # find all potential win states
-    winstates = find_win_states_blind(maze, boxes, startNode)
+    winstates,step = find_win_states_blind(maze, boxes, startNode)
 
     bestcost = 9999
     beststate = None
@@ -341,7 +343,7 @@ def Search(maze, boxes, startNode):
             beststate = state
             bestcost = state[1]
     
-    print_solution(maze, beststate)
+    print_solution(maze, beststate, step)
     
     
 
@@ -354,7 +356,7 @@ def Search(maze, boxes, startNode):
 if __name__ == '__main__':
     # Initialize maze
     startTime = time.time()
-    maze, boxes = inc.loadmaze("sokoban3.txt", True)
+    maze, boxes = inc.loadmaze("sokoban4.txt", True)
 
     # Find startNode
     start_x, start_y = inc.find_start(maze)
