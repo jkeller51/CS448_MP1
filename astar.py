@@ -10,7 +10,7 @@ Created on Fri Feb  2 16:05:27 2018
 import include as inc
 
 debug=0
-def Search(maze, startNode, endNode):
+def Search(maze, startNode, endNode, ignoreplayer=False):
     """ A* Search
 
     Args:
@@ -73,7 +73,7 @@ def Search(maze, startNode, endNode):
             break
         
         # add all children to unvisited queue
-        children = current.find_children(maze)
+        children = current.find_children(maze, ignoreplayer)
         for child in children:
             if (child.beenthere == 0) and (child not in unvisited):
                 child.previousNode = current
@@ -91,7 +91,7 @@ def Search(maze, startNode, endNode):
                 newchild.evaluation = newchild.cost + inc.heuristic(newchild, endNode)
                 
     if (current.x == endNode.x) and (current.y == endNode.y):  # success
-        return step
+        return current.cost
     else:   # failure
         return -1
         

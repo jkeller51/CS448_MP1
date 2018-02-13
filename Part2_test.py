@@ -173,7 +173,7 @@ def in_corner(maze, node):
 
 
 def add_box_state(maze, boxstates, this_state):
-    """ adds the box state but checks for a duplicate in current states as
+    """ adds the box state but checks for a duplicate in current frontier as
     well as previous states
     """
     boxes = this_state[0]
@@ -267,6 +267,7 @@ def find_win_states_blind(maze, boxes, startNode):
         
         ### BEGIN State expansion
         print("Cost:",cost)
+        print("States:", len(boxstates))
 #        print("\n\nCurrent state:")
 #        print_state(maze, state, position)
         
@@ -310,7 +311,6 @@ def find_win_states_blind(maze, boxes, startNode):
             curx = curbox.x
             cury = curbox.y
             curbox.move(m[1].x, m[1].y)
-            #boxstates.append((newstate, cost+m[3], maze[curx][cury], curstate))
             boxstates = add_box_state(maze, boxstates, (newstate, cost+m[3], maze[curx][cury], curstate))
             if (debug==1):
                 print("\n")
@@ -371,8 +371,11 @@ def find_win_states_smart(maze, boxes, startNode):
         
         (state,cost,position,previous) = togo
         
+
+        
         ### BEGIN State expansion
-#        print("Cost:",cost)
+        print("Cost:",cost)
+        print("States:", len(boxstates))
 #        print("\n\nCurrent state:")
 #        print_state(maze, state, position)
         
@@ -416,16 +419,15 @@ def find_win_states_smart(maze, boxes, startNode):
             curx = curbox.x
             cury = curbox.y
             curbox.move(m[1].x, m[1].y)
-            #boxstates.append((newstate, cost+m[3], maze[curx][cury], curstate))
             boxstates = add_box_state(maze, boxstates, (newstate, cost+m[3], maze[curx][cury], curstate))
-#            if (debug==1):
-#                print("\n")
-#                print("One possibility:")
-#                print_state(maze, newstate, maze[curx][cury])
-#                print("Cost of move:")
-#                print(m[3])
-#                print("Total cost of this state:")
-#                print(cost+m[3])
+            if (debug==1):
+                print("\n")
+                print("One possibility:")
+                print_state(maze, newstate, maze[curx][cury])
+                print("Cost of move:")
+                print(m[3])
+                print("Total cost of this state:")
+                print(cost+m[3])
         
         if togo in boxstates:        
             boxstates.remove(togo)
@@ -476,7 +478,7 @@ def Search(maze, boxes, startNode, smart=False):
 if __name__ == '__main__':
     # Initialize maze
     startTime = time.time()
-    maze, boxes = inc.loadmaze("sokoban2.txt", True)
+    maze, boxes = inc.loadmaze("sokoban4.txt", True)
 
     # Find startNode
     start_x, start_y = inc.find_start(maze)
