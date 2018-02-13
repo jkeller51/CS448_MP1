@@ -156,6 +156,9 @@ def find_path(maze, boxes, startNode, endNode):
         
     steps = AS.Search(maze_boxes, startNode, endNode, True)
     
+    if (steps != -1):
+        steps = endNode.cost+1
+    
     
     return steps
 
@@ -266,7 +269,7 @@ def find_win_states_blind(maze, boxes, startNode):
         (state,cost,position,previous) = togo
         
         ### BEGIN State expansion
-        print("Cost:",cost)
+#        print("Cost:",cost)
 #        print("\n\nCurrent state:")
 #        print_state(maze, state, position)
         
@@ -474,16 +477,19 @@ def Search(maze, boxes, startNode, smart=False):
         
         
 if __name__ == '__main__':
+    # use A* smart search?
+    smart = False
+    
     # Initialize maze
     startTime = time.time()
-    maze, boxes = inc.loadmaze("sokoban2.txt", True)
+    maze, boxes = inc.loadmaze("sokoban1.txt", True)
 
     # Find startNode
     start_x, start_y = inc.find_start(maze)
     startNode = maze[start_x][start_y]
     
     
-    Search(maze, boxes, startNode, True)
+    Search(maze, boxes, startNode, smart)
     endTime = time.time()
     print('\nTime used: {0} min(s)'.format((endTime - startTime) / 60.0))
     
